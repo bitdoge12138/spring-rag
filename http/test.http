@@ -1,0 +1,36 @@
+### 查看 ES 中的向量字段（示例）
+GET http://localhost:9200/llm_action_rag_20250513/_search
+Content-Type: application/json
+
+{
+  "size": 10,
+  "_source": ["embedding_vector", "docId", "path"]
+}
+
+
+###
+GET http://localhost:9200/llm_action_rag_20250527/_search
+Content-Type: application/json
+
+{
+  "size": 20,
+  "_source": ["chunkId", "content"]
+}
+
+###
+GET http://localhost:9200/llm_action_rag_20250527/_search
+Content-Type: application/json
+
+{
+  "size": 20
+}
+
+###
+POST http://localhost:9200/llm_action_rag_20250513/_delete_by_query
+Content-Type: application/json
+
+{
+  "query": {
+    "match_all": {}
+  }
+}

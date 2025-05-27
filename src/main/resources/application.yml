@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: llm-rag-001
+  elasticsearch:
+    uris: http://127.0.0.1:9200
+  shell:
+    history:
+      name: test
+    theme:
+      name: aaa
+    interactive:
+      enabled: true     # 关闭shell否则无法nohup
+  thymeleaf:
+    cache: false
+    prefix: classpath:/templates/
+    encoding: UTF-8
+    suffix: .html
+    mode: HTML
+logging:
+  config: classpath:logback-local.xml
+# 自定义配置
+llm:
+  # 智谱AI开放密钥，开发者替换为自己的
+  zp-key: 5158c3c5685e4f81b6ff8f5f7b7bc43c.8hPodvY34SiGcXov
