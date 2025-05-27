@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Chat with RAG</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#3B82F6',
+            secondary: '#10B981',
+            neutral: '#1F2937',
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .animate-pulse-slow {
+        animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      }
+      .text-shadow {
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      .transition-custom {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen font-sans">
+<div class="container mx-auto px-4 py-8 max-w-6xl">
+  <!-- 页面标题 -->
+  <header class="mb-10 text-center">
+    <h1 class="text-[clamp(1.8rem,5vw,3rem)] font-bold text-neutral mb-2 text-shadow">
+      <i class="fa-solid fa-comments text-primary mr-3"></i> Chat with Files (RAG)
+    </h1>
+    <p class="text-gray-600 max-w-2xl mx-auto text-lg">
+      Ask questions about your documents using Retrieval Augmented Generation
+    </p>
+  </header>
+
+  <!-- 主要内容区域 -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- 左侧：聊天区域 -->
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden transform hover:scale-[1.01] transition-custom">
+      <div class="bg-primary/10 p-5 border-b border-primary/20">
+        <h2 class="text-xl font-semibold text-neutral flex items-center">
+          <i class="fa-solid fa-comment-dots text-primary mr-2"></i> Chat Interface
+        </h2>
+      </div>
+
+      <div class="p-6">
+        <form th:action="@{/chat}" method="post" class="mb-6">
+          <div class="flex flex-col sm:flex-row gap-3">
+            <input type="text" id="question" name="question"
+                   placeholder="Type your question here..."
+                   class="flex-grow px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all outline-none text-gray-800"
+                   required />
+            <button type="submit"
+                    class="px-6 py-3 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all flex items-center justify-center whitespace-nowrap shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+              <i class="fa-solid fa-paper-plane mr-2"></i> Send
+            </button>
+          </div>
+        </form>
+
+        <div class="space-y-5 max-h-[500px] overflow-y-auto pr-2" id="chat-container">
+          <div th:if="${question}" class="bg-blue-50 p-5 rounded-xl border-l-4 border-primary shadow-sm">
+            <div class="flex items-start">
+              <div class="bg-primary/20 rounded-full p-2 mr-3">
+                <i class="fa-solid fa-user text-primary"></i>
+              </div>
+              <div>
+                <h3 class="font-medium text-neutral mb-1">Your Question:</h3>
+                <p th:text="${question}" class="text-gray-700 leading-relaxed"></p>
+              </div>
+            </div>
+          </div>
+
+          <div th:if="${answer}" class="bg-green-50 p-5 rounded-xl border-l-4 border-secondary shadow-sm">
+            <div class="flex items-start">
+              <div class="bg-secondary/20 rounded-full p-2 mr-3">
+                <i class="fa-solid fa-robot text-secondary"></i>
+              </div>
+              <div>
+                <h3 class="font-medium text-neutral mb-1">Answer:</h3>
+                <p th:text="${answer}" class="text-gray-700 leading-relaxed"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右侧：文档上传区域 -->
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden transform hover:scale-[1.01] transition-custom">
+      <div class="bg-secondary/10 p-5 border-b border-secondary/20">
+        <h2 class="text-xl font-semibold text-neutral flex items-center">
+          <i class="fa-solid fa-file-upload text-secondary mr-2"></i> Add Documents
+        </h2>
+      </div>
+
+      <div class="p-6">
+        <form id="uploadForm" method="post" enctype="multipart/form-data" class="space-y-5">
+          <div>
+            <label for="file" class="block text-sm font-medium text-gray-700 mb-2">
+              <i class="fa-solid fa-file-text mr-1"></i> Select TXT File
+            </label>
+            <div class="relative">
+              <input type="file" id="file" name="file" accept=".txt" required
+                     class="hidden" />
+              <label for="file" class="flex items-center justify-center w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-all">
+                <i class="fa-solid fa-upload text-gray-400 mr-2"></i>
+                <span class="text-gray-600">Click to upload file or drag and drop</span>
+              </label>
+              <p id="file-name" class="mt-2 text-sm text-gray-500"></p>
+            </div>
+          </div>
+
+          <button type="submit"
+                  class="w-full px-6 py-3 bg-secondary hover:bg-secondary/90 text-white rounded-lg transition-all flex items-center justify-center shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+            <i class="fa-solid fa-database mr-2"></i> Process Document
+          </button>
+        </form>
+
+        <div id="upload-feedback" class="mt-6 p-4 rounded-lg" style="display: none;">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <i id="feedback-icon" class="fa-solid fa-circle-check text-green-500"></i>
+            </div>
+            <div class="ml-3">
+              <p id="feedback-message" class="text-green-700"></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <h3 class="font-medium text-blue-800 mb-2 flex items-center">
+            <i class="fa-solid fa-info-circle mr-2"></i>
+            Document Requirements
+          </h3>
+          <ul class="text-blue-700 space-y-1 text-sm">
+            <li class="flex items-start">
+              <i class="fa-solid fa-check-circle text-blue-500 mt-1 mr-2"></i>
+              <span>Text files (.txt) only</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fa-solid fa-check-circle text-blue-500 mt-1 mr-2"></i>
+              <span>Files up to 10MB</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fa-solid fa-check-circle text-blue-500 mt-1 mr-2"></i>
+              <span>Optimal content length: 1,000-10,000 words</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 页脚 -->
+  <footer class="mt-12 text-center text-gray-500 text-sm">
+    <p>Powered by RAG Technology | <i class="fa-solid fa-robot text-primary"></i> | <span class="text-primary">v1.0.0</span></p>
+  </footer>
+</div>
+
+<script>
+  // 文件选择反馈
+  document.getElementById('file').addEventListener('change', function () {
+    const fileName = this.files[0]? this.files[0].name : '';
+    document.getElementById('file-name').textContent = fileName? `Selected file: ${fileName}` : '';
+  });
+
+  // 上传表单提交事件
+  document.getElementById('uploadForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const form = this;
+    const submitButton = form.querySelector('button[type="submit"]');
+    const originalContent = submitButton.innerHTML;
+
+    // 显示加载状态
+    submitButton.disabled = true;
+    submitButton.innerHTML = `
+                    <i class="fa-solid fa-spinner fa-spin mr-2"></i>
+                    <span>Processing...</span>
+                `;
+
+    const formData = new FormData(form);
+
+    fetch('/api/add', {
+      method: 'POST',
+      body: formData
+    })
+            .then(response => response.json())
+            .then(data => {
+              const feedbackDiv = document.getElementById('upload-feedback');
+              const feedbackMessage = document.getElementById('feedback-message');
+              const feedbackIcon = document.getElementById('feedback-icon');
+
+              feedbackDiv.style.display = 'block';
+              feedbackMessage.textContent = data.message || 'Document processed successfully';
+              feedbackIcon.classList.remove('fa-circle-xmark');
+              feedbackIcon.classList.add('fa-circle-check');
+
+              // 重置表单
+              form.reset();
+              document.getElementById('file-name').textContent = '';
+            })
+            .catch(error => {
+              console.error('Upload error:', error);
+
+              const feedbackDiv = document.getElementById('upload-feedback');
+              const feedbackMessage = document.getElementById('feedback-message');
+              const feedbackIcon = document.getElementById('feedback-icon');
+
+              feedbackDiv.style.display = 'block';
+              feedbackMessage.textContent = 'Upload failed:'+ error.message;
+              feedbackIcon.classList.remove('fa-circle-check');
+              feedbackIcon.classList.add('fa-circle-xmark');
+            })
+            .finally(() => {
+              // 恢复按钮状态
+              submitButton.disabled = false;
+              submitButton.innerHTML = originalContent;
+
+              // 5秒后隐藏反馈信息
+              setTimeout(() => {
+                feedbackDiv.style.display = 'none';
+              }, 5000);
+            });
+  });
+
+  // 表单提交动画（聊天表单），保持原有逻辑
+  document.querySelectorAll('form').forEach(form => {
+    if (form.id!== 'uploadForm') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const submitButton = form.querySelector('button[type="submit"]');
+        const originalContent = submitButton.innerHTML;
+
+        // 显示加载状态
+        submitButton.disabled = true;
+        submitButton.innerHTML = `
+                    <i class="fa-solid fa-spinner fa-spin mr-2"></i>
+                    <span>Processing...</span>
+                `;
+
+        // 模拟提交过程
+        setTimeout(() => {
+          // 恢复按钮状态
+          submitButton.disabled = false;
+          submitButton.innerHTML = originalContent;
+
+          // 实际项目中这里应该是真实的表单提交
+          form.submit();
+        }, 1500);
+      });
+    }
+  });
+
+  // 平滑滚动
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        target.scrollIntoView({
+          behavior:'smooth'
+        });
+      }
+    });
+  });
+</script>
+</body>
+</html>
