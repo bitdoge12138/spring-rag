@@ -48,40 +48,7 @@ public class ZhipuAI {
         return apiKey;
     }
 
-    public void chat(String prompt){
-        try {
-            OkHttpClient.Builder builder = new OkHttpClient.Builder()
-                    .connectTimeout(20000, TimeUnit.MILLISECONDS)
-                    .readTimeout(20000, TimeUnit.MILLISECONDS)
-                    .writeTimeout(20000, TimeUnit.MILLISECONDS)
-                    .addInterceptor(new ZhipuHeaderInterceptor(this.getApiKey()));
-            OkHttpClient okHttpClient = builder.build();
-
-            ZhipuChatCompletion zhipuChatCompletion=new ZhipuChatCompletion();
-            zhipuChatCompletion.addPrompt(prompt);
-            // 采样温度，控制输出的随机性，必须为正数
-            // 值越大，会使输出更随机，更具创造性；值越小，输出会更加稳定或确定
-            zhipuChatCompletion.setTemperature(0.7f);
-            zhipuChatCompletion.setTop_p(0.7f);
-
-            EventSource.Factory factory = EventSources.createFactory(okHttpClient);
-            ObjectMapper mapper = new ObjectMapper();
-            String requestBody = mapper.writeValueAsString(zhipuChatCompletion);
-            Request request = new Request.Builder()
-                    .url("https://open.bigmodel.cn/api/paas/v3/model-api/chatglm_std/sse-invoke")
-                    .post(RequestBody.create(MediaType.parse(ContentType.JSON.getValue()), requestBody))
-                    .build();
-            CountDownLatch countDownLatch=new CountDownLatch(1);
-            // 创建事件,控制台输出
-            EventSource eventSource = factory.newEventSource(request, new ConsoleEventSourceListener(countDownLatch));
-            countDownLatch.await();
-
-        } catch (Exception e) {
-            log.error("llm-chat异常：{}", e.getMessage());
-        }
-    }
-
-    public String chat2(String prompt) {
+    public String chat(String prompt) {
         StringBuilder responseBuilder = new StringBuilder();
         try {
             OkHttpClient.Builder builder = new OkHttpClient.Builder()
@@ -211,7 +178,6 @@ public class ZhipuAI {
         public Response intercept(@NotNull Chain chain) throws IOException {
             Request original = chain.request();
             String authorization= LLMUtils.gen(apiKey,60);
-            //log.info("authorization:{}",authorization);
             Request request = original.newBuilder()
                     .header(Header.AUTHORIZATION.getValue(), authorization)
                     .header(Header.CONTENT_TYPE.getValue(), ContentType.JSON.getValue())

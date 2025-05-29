@@ -1,18 +1,3 @@
-/*
- * THIS FILE IS PART OF Zhejiang LiShi Technology CO.,LTD.
- * Copyright (c) 2019-2023  Zhejiang LiShi Technology CO.,LTD.
- * It is forbidden to distribute or copy the code under this software without the consent of the Zhejiang LiShi Technology
- *
- *     https://www.lishiots.com/
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-
 package com.usagi.listener;
 
 import cn.hutool.core.util.StrUtil;

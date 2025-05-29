@@ -73,28 +73,6 @@ public class VectorStorage {
         log.info("保存向量成功-size:{}", size);
     }
 
-    public void deleteByDocId(String collectionName, String docId) {
-        log.info("开始删除文档，collectionName: {}, docId: {}", collectionName, docId);
-
-        // 检查索引是否存在
-        IndexCoordinates index = IndexCoordinates.of(collectionName);
-        IndexOperations indexOps = elasticsearchRestTemplate.indexOps(index);
-        if (!indexOps.exists()) {
-            log.warn("索引不存在，无法删除: {}", collectionName);
-            throw new IllegalArgumentException("索引不存在: " + collectionName);
-        }
-
-        // 构建查询条件匹配 docId 字段
-        Query deleteQuery = new NativeSearchQueryBuilder()
-                .withQuery(QueryBuilders.termQuery("docId", docId))  // 精确匹配 docId
-                .build();
-
-        IndexCoordinates indexCoordinates = IndexCoordinates.of(collectionName);
-        elasticsearchRestTemplate.delete(deleteQuery, ElasticVectorData.class, indexCoordinates);
-
-        log.info("deleted documents with docId: {}", docId);
-    }
-
     public String retrieval(String collectionName,double[] vector){
         // Build the script,查询向量
         Map<String, Object> params = new HashMap<>();

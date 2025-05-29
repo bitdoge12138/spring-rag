@@ -40,7 +40,7 @@ public class AddTxtController {
 
         try {
             // 加载文档并分块
-            List<ChunkResult> chunkResults = txtChunk.chunk2(file);
+            List<ChunkResult> chunkResults = txtChunk.chunk(file);
 
             String doc = file.getOriginalFilename();
 

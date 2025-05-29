@@ -42,7 +42,7 @@ public class ChatController {
         }
 
         String prompt = LLMUtils.buildPrompt(question, vectorData);
-        String answer = zhipuAI.chat2(prompt); // 改为返回结果
+        String answer = zhipuAI.chat(prompt); // 改为返回结果
         model.addAttribute("question", question);
         model.addAttribute("answer", answer);
 

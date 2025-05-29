@@ -25,7 +25,6 @@ public class LLMUtils {
 
         String id = parts[0];
         String secret = parts[1];
-        // 4143f0fa36f0aaf39a63be11a3623c63.eMhlXYJLdUGQO0xH
         Map<String, Object> payload = new HashMap<>();
         long currentTimeMillis = System.currentTimeMillis();
         long expirationTimeMillis = currentTimeMillis + (60 * 1000);

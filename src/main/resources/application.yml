@@ -1,15 +1,8 @@
 spring:
   application:
-    name: llm-rag-001
+    name: spring-rag
   elasticsearch:
     uris: http://127.0.0.1:9200
-  shell:
-    history:
-      name: test
-    theme:
-      name: aaa
-    interactive:
-      enabled: true     # 关闭shell否则无法nohup
   thymeleaf:
     cache: false
     prefix: classpath:/templates/
