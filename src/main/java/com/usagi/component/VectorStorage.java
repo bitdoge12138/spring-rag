@@ -123,7 +123,10 @@ public class VectorStorage {
         properties.put("content", MapUtil.builder("type", "keyword").build());
         properties.put("docId", MapUtil.builder("type", "keyword").build());
         // 向量
-        properties.put("vector", MapUtil.builder("type", "dense_vector").put("dims", Objects.toString(dims)).build());
+        Map<String, Object> vectorField = new HashMap<>();
+        vectorField.put("type", "dense_vector");
+        vectorField.put("dims", dims);
+        properties.put("vector", vectorField);
         Map<String, Object> root = new HashMap<>();
         root.put("properties", properties);
         return root;
