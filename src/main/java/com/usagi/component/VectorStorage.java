@@ -30,7 +30,7 @@ public class VectorStorage {
 
     public String getCollectionName(){
         //演示效果使用，固定前缀+日期
-        return "llm_action_rag_"+ DateUtil.format(Date.from(Instant.now()),"yyyyMMdd");
+        return "llm_spring_rag_"+ DateUtil.format(Date.from(Instant.now()),"yyyyMMdd");
     }
 
     /**

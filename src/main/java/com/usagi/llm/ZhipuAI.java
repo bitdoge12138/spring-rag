@@ -13,7 +13,6 @@ import com.usagi.domain.llm.ChunkResult;
 import com.usagi.domain.llm.EmbeddingResult;
 import com.usagi.domain.llm.ZhipuChatCompletion;
 import com.usagi.domain.llm.ZhipuResult;
-import com.usagi.listener.ConsoleEventSourceListener;
 import com.usagi.utils.LLMUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
